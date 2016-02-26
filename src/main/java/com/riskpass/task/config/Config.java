@@ -3,46 +3,54 @@ package com.riskpass.task.config;
 import java.util.regex.Pattern;
 
 public class Config {
-  private static final Pattern COMMA_PATTERN = Pattern.compile(",");
-  private static final Pattern NEXT_QUOTE_PATTERN = Pattern.compile("\"\\s*,");
-  private static final Pattern LAST_QUOTE_PATTERN = Pattern.compile("\"$");
+  private Pattern commaPattern = null;
+  private Pattern nextQuotePattern = null;
+  private Pattern lastQuotePattern = null;
 
-  Pattern commaPattern = Config.COMMA_PATTERN;
-  public Pattern commaPattern() {return this.commaPattern;}
-
-  Pattern nextQuotePattern = Config.NEXT_QUOTE_PATTERN;
-  public Pattern nextQuotePattern() {return this.nextQuotePattern;}
-
-  Pattern lastQuotePattern = Config.LAST_QUOTE_PATTERN;
-  public Pattern lastQuotePattern() {return this.lastQuotePattern;}
-
-  public Config() {
+  private Config(String comma, String quote) {
+    commaPattern = Pattern.compile(comma);
+    nextQuotePattern = Pattern.compile(quote+"\\s*"+comma);
+    lastQuotePattern = Pattern.compile(quote+"$");
   }
 
-  public Config(
-    final Pattern commaPattern,
-    final Pattern nextQuotePattern,
-    final Pattern lastQuotePattern
-  ) {
-    this.commaPattern = commaPattern;
-    this.nextQuotePattern = nextQuotePattern;
-    this.lastQuotePattern = lastQuotePattern;
+  public Pattern commaPattern() {
+    return this.commaPattern;
   }
 
-  public static class Modifiable extends Config {
-    public void commaPattern(final Pattern value) {this.commaPattern = value;}
-    public void nextQuotePattern(final Pattern value) {this.nextQuotePattern = value;}
-    public void lastQuotePattern(final Pattern value) {this.lastQuotePattern = value;}
+  public Pattern nextQuotePattern() {
+    return this.nextQuotePattern;
+  }
 
-    public Modifiable() {
+  public Pattern lastQuotePattern() {
+    return this.lastQuotePattern;
+  }
+
+
+  public static class ConfigBuilder {
+
+    private static final String DEFAULT_COMMA = ",";
+    private static final String DEFAULT_QUOTE = "\"";
+
+    private String comma = DEFAULT_COMMA;
+    private String quote = DEFAULT_QUOTE;
+
+    public static ConfigBuilder builder(){
+      return new ConfigBuilder();
     }
 
-    public Modifiable(
-      final Pattern commaPattern,
-      final Pattern nextQuotePattern,
-      final Pattern lastQuotePattern
-    ) {
-      super(commaPattern, nextQuotePattern, lastQuotePattern);
+    public ConfigBuilder withCommaSymbol(String commaSymbol) {
+      this.comma = commaSymbol;
+      return this;
     }
+
+    public ConfigBuilder withQuoteSymbol(String quoteSymbol) {
+      this.quote = quoteSymbol;
+      return this;
+    }
+
+    public Config build() {
+      return new Config(this.comma, this.quote);
+    }
+
   }
 }

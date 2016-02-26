@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 public class ExtractionService {
+
+  private static final String EMPTY_STRING = "";
+
   private final Config config;
-  public Config config() {return this.config;}
 
   public ExtractionService(final Config config) {
     this.config = config;
@@ -16,7 +18,6 @@ public class ExtractionService {
 
   public List<String> extract(final String line) {
     List<String> values = new ArrayList<>();
-
     String text = line.trim();
     while (!text.isEmpty()) {
       if (text.startsWith("\"")) {
@@ -29,20 +30,12 @@ public class ExtractionService {
     return values;
   }
 
-  private String addQuotedCell(
-    final String text,
-    final List<String> values
-  ) {
-    String newText = "";
-
+  private String addQuotedCell(final String text, final List<String> values) {
+    String newText = EMPTY_STRING;
     String unquotedText = text.substring(1);
-    Matcher matcher = this.config().nextQuotePattern().matcher(unquotedText);
+    Matcher matcher = config.nextQuotePattern().matcher(unquotedText);
     if (matcher.find()) {
-      newText = this.addCell(
-        unquotedText, values,
-        matcher.start(), matcher.end(),
-        false
-      );
+      newText = this.addCell(unquotedText, values, matcher.start(), matcher.end(), false);
     } else {
       this.addLastQuotedCell(unquotedText, values);
     }
@@ -50,19 +43,12 @@ public class ExtractionService {
     return newText;
   }
 
-  private String addCell(
-    final String text,
-    final List<String> values
-  ) {
-    String newText = "";
+  private String addCell(final String text, final List<String> values) {
+    String newText = EMPTY_STRING;
 
-    Matcher matcher = this.config().commaPattern().matcher(text);
+    Matcher matcher = config.commaPattern().matcher(text);
     if (matcher.find()) {
-      newText = this.addCell(
-        text, values,
-        matcher.start(), matcher.end(),
-        true
-      );
+      newText = this.addCell(text, values, matcher.start(), matcher.end(), true);
     } else {
       this.addLastCell(text, values);
     }
@@ -70,11 +56,8 @@ public class ExtractionService {
     return newText;
   }
 
-  private void addLastQuotedCell(
-    final String text,
-    final List<String> values
-  ) {
-    Matcher matcher = this.config().lastQuotePattern().matcher(text);
+  private void addLastQuotedCell(final String text, final List<String> values) {
+    Matcher matcher = config.lastQuotePattern().matcher(text);
     if (!matcher.find()) {
       throw new IllegalStateException();
     }
@@ -82,20 +65,11 @@ public class ExtractionService {
     values.add(text.substring(0, text.length() - 1));
   }
 
-  private void addLastCell(
-    final String text,
-    final List<String> values
-  ) {
+  private void addLastCell(final String text, final List<String> values) {
     values.add(text.trim());
   }
 
-  private String addCell(
-    final String text,
-    final List<String> values,
-    final int start,
-    final int end,
-    final boolean trim
-  ) {
+  private String addCell(final String text, final List<String> values, final int start, final int end, final boolean trim) {
     String value = text.substring(0, start);
     if (trim) {
       value = value.trim();
@@ -104,7 +78,7 @@ public class ExtractionService {
 
     String newText = text.substring(end).trim();
     if (newText.isEmpty()) {
-      values.add("");
+      values.add(EMPTY_STRING);
     }
 
     return newText;

@@ -7,9 +7,14 @@ import java.util.regex.Pattern;
 
 public class Task {
   public static void main(final String[] args) {
-    Config.Modifiable config = new Config.Modifiable();
-    config.commaPattern(Pattern.compile(";"));
-    config.nextQuotePattern(Pattern.compile("\"\\s*;"));
+    if(args.length == 0) {
+      System.err.println("No argument provided.");
+      System.exit(1);
+    }
+    Config config = Config.ConfigBuilder.builder()
+                            .withCommaSymbol(";")
+                            .withQuoteSymbol("\"")
+                            .build();
 
     ExtractionService extractionService = new ExtractionService(config);
     extractionService.extract(args[0]).forEach(System.out::println);
